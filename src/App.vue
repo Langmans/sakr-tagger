@@ -87,7 +87,10 @@ const handleFileUpload = (event) => {
         The two ship the same plugin filename and 35 of their 40 shared keywords
         have different ids, so a line written for one is applied as a different
         keyword by the other. Nothing reports it. Switching here renumbers
-        everything on the page.
+        everything on the page — watch the ids under the labels.
+        <strong>Five keywords keep their number</strong> in both versions
+        (bra normal, bikini and micro, pants sheer, top halter top), so those
+        will not change. That is coincidence, not compatibility.
       </p>
     </fieldset>
 

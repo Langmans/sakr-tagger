@@ -1,10 +1,13 @@
 <script setup>
-import { computed, useId } from 'vue'
+import { computed, useId, inject, ref } from 'vue'
 import LabelInput from './LabelInput.vue'
 
 import tooltips from '../tooltips.js'
+import { formidFor } from '../keywords.js'
 
 const id = useId()
+
+const version = inject('sakrVersion', ref('redux'))
 
 // Het model bevat simpelweg de geselecteerde formid (String) of null/undefined
 const model = defineModel({
@@ -28,6 +31,7 @@ const props = defineProps({
              :value="null" v-model="model" class="deselect"/>
 
         <LabelInput v-for="keyword in props.keywords" :key="keyword.name" :label="keyword.label" :name="id" type="radio"
-             :value="keyword.name" v-model="model" :title="tooltips[keyword.name]" />
+             :value="keyword.name" v-model="model" :title="tooltips[keyword.name]"
+             :hint="formidFor(keyword, version)" />
     </div>
 </template>

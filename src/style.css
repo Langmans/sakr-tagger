@@ -140,6 +140,18 @@ details > summary {
   }
 }
 
+/* The FormID under each label. Small and dim so the labels still read as
+   labels, but present, because it is the thing the version switch changes and
+   an invisible effect reads as no effect. */
+.hint {
+  display: block;
+  font-family: ui-monospace, "Cascadia Code", Consolas, monospace;
+  font-size: 0.72em;
+  line-height: 1.2;
+  opacity: 0.6;
+  letter-spacing: 0.02em;
+}
+
 .inline-flex.radio {
   display: flex;
   gap: 0;

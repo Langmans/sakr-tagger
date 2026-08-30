@@ -1,7 +1,11 @@
 <script setup>
+import { inject, ref } from 'vue'
 import LabelInput from './LabelInput.vue'
 
 import tooltips from '../tooltips.js'
+import { formidFor } from '../keywords.js'
+
+const version = inject('sakrVersion', ref('redux'))
 
 const modal = defineModel({
     type: Object,
@@ -24,7 +28,8 @@ const props = defineProps({
             :label="keyword.label" 
             :name="keyword.name"
              :title="tooltips[keyword.name]"
-            type="checkbox" 
+            :hint="formidFor(keyword, version)"
+            type="checkbox"
             :model-value="modal?.[keyword.name] ?? false"
             @update:model-value="(val) => modal = { ...modal, [keyword.name]: val }"
         />
