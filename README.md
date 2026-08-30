@@ -4,6 +4,13 @@ Tag a Fallout 4 armour with Skimpy Armor Keyword Resource keywords in a form, an
 read back the RobCo Patcher line. Load an existing ini to edit it, or to convert
 it.
 
+**→ [langmans.github.io/sakr-tagger](https://langmans.github.io/sakr-tagger/)**
+
+Nothing to install and nothing is uploaded: the file you load is read in your own
+browser and never leaves it.
+
+Or run it yourself:
+
 ```bash
 npm install && npm run dev
 ```
@@ -35,6 +42,16 @@ own names and ids — and `sakr_kwd_protectedItem`. None of them are here yet.
 
 This only matters one way round: a 1.1.2 patch cannot name a REDUX-only keyword,
 so nothing is lost on import or conversion.
+
+## Publishing a new version
+
+There is no Actions workflow, so the built site is pushed to `gh-pages` by hand.
+`vite.config.js` sets `base` to the repository name for the build only, because a
+project page serves from `/sakr-tagger/` rather than from the domain root.
+
+```bash
+npm run build && git worktree add -B gh-pages .pages && cp -r dist/. .pages/ && touch .pages/.nojekyll && git -C .pages add -A && git -C .pages commit -m "Build of main for GitHub Pages" && git -C .pages push -f origin gh-pages && git worktree remove --force .pages
+```
 
 ## Related
 

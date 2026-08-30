@@ -22,3 +22,6 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+# The gh-pages worktree used by the deploy in README.md.
+.pages
