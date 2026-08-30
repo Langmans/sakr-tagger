@@ -38,6 +38,7 @@ so nothing is lost on import or conversion.
 
 ## Related
 
-- `sakr-patch-converter` — the same conversion for whole folders of inis at once,
-  as a PowerShell script that writes copies and never touches the originals. Its
-  `keyword-ids.md` has the full id table and how the finding was tested.
+[sakr-patch-converter](https://github.com/Langmans/sakr-patch-converter) —
+the same conversion for whole folders of inis at once, as a PowerShell script
+that writes copies and never touches the originals. Its `keyword-ids.md` has the
+full id table and how the finding was tested before it was believed.
