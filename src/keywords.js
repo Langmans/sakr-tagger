@@ -2,7 +2,7 @@
  *
  * The two SAKR versions ship the SAME plugin filename,
  * SkimpyArmorKeywordResource.esm, and REDUX renumbered nearly all of it: of the
- * 40 keyword names below, 35 have a different id. Five match by coincidence.
+ * 40 female keyword names, 35 have a different id. Five match by coincidence.
  *
  * That is why a version has to be chosen rather than assumed. A RobCo Patcher
  * line names a keyword by plugin|formid, so an id written for the wrong version
@@ -10,12 +10,11 @@
  * ids land on a real REDUX keyword that is simply a different one. A sheer
  * full-body suit comes out as a micro skirt with hot pants and a sheer bra.
  *
- * Only two ids die outright: shoesHighHeels and shoesKillerHeels, which REDUX
- * moved out of the 0x26xx range entirely. Those are the ones people notice,
- * because heels stop counting. The rest are silent.
+ * Complex Item Sorter has none of this problem: it names keywords by NAME, and
+ * names did not move. See export.js.
  *
  * Ids are local, with the load-order byte stripped, which is what a RobCo line
- * wants. Measured from both plugins directly; the full comparison and how it was
+ * wants. Read out of both plugins directly; the full comparison and how it was
  * tested are in the sakr-patch-converter project, keyword-ids.md.
  */
 
@@ -25,10 +24,20 @@ export const VERSIONS = Object.freeze({
   legacy: "1.1.2 (legacy)",
 });
 
+/** Which body a set of keywords is for. Keys are what `setFor` accepts. */
+export const SEXES = Object.freeze({
+  female: "Female",
+  male: "Male",
+});
+
 /**
  * One keyword's id under one version.
  *
- * @param {Object} keyword  an entry from the default export
+ * Undefined where the version has no such record, which is every male keyword
+ * under 1.1.2: that version has no male set at all. Callers must not treat the
+ * gap as a zero -- an id-less keyword cannot go in a RobCo line.
+ *
+ * @param {Object} keyword  an entry from a group below
  * @param {String} version  'redux' or 'legacy'
  * @returns {String|undefined}
  */
@@ -36,7 +45,7 @@ export function formidFor(keyword, version) {
   return keyword?.[version];
 }
 
-export default Object.freeze({
+const FEMALE = Object.freeze({
   armorTop: [
     {
       name: "sakr_kwd_armorTopFull",
@@ -336,3 +345,91 @@ export default Object.freeze({
     },
   ],
 });
+
+/* The male set, which exists in REDUX only -- 1.1.2 has no male keyword at all,
+   so none of these carries a `legacy` id and none can go in a 1.1.2 patch.
+ *
+   Not a suffix on the same records: seven groups rather than eight, with no bra
+   and no skirt, and the top varies differently. Where the female set steps
+   Full -> Cleavage -> LowCutCleavage, this one steps Full -> Breast ->
+   SmallCoverage, and it has a front-torso tag with no female counterpart. So it
+   is a separate table rather than a name transform, and reusing the female
+   chain would produce plausible wrong keywords instead of failing.
+
+   Ids run 0x861..0x87E, read out of the plugin. */
+const MALE = Object.freeze({
+  armorTop: [
+    { name: "sakr_kwd_armorTopFull_MALE", label: "Full", type: "radio", redux: "000861" },
+    { name: "sakr_kwd_armorTopBreast_MALE", label: "Breast", type: "radio", redux: "000862" },
+    { name: "sakr_kwd_armorTopLewd_MALE", label: "Lewd", type: "radio", redux: "000863" },
+  ],
+  armorBottom: [
+    { name: "sakr_kwd_armorBottomFull_MALE", label: "Full", type: "radio", redux: "000864" },
+    { name: "sakr_kwd_armorBottomButt_MALE", label: "Butt", type: "radio", redux: "000865" },
+    { name: "sakr_kwd_armorBottomLewd_MALE", label: "Lewd", type: "radio", redux: "000866" },
+  ],
+  panty: [
+    { name: "sakr_kwd_pantyNormal_MALE", label: "Normal", type: "radio", redux: "000867" },
+    { name: "sakr_kwd_pantyThong_MALE", label: "Thong", type: "radio", redux: "000868" },
+    { name: "sakr_kwd_pantyGString_MALE", label: "G-String", type: "radio", redux: "000869" },
+    { name: "sakr_kwd_pantyTagSheer_MALE", label: "Sheer", type: "checkbox", redux: "00086A" },
+  ],
+  pants: [
+    { name: "sakr_kwd_pantsLong_MALE", label: "Long", type: "radio", redux: "00086B" },
+    { name: "sakr_kwd_pantsShorts_MALE", label: "Shorts", type: "radio", redux: "00086D" },
+    { name: "sakr_kwd_pantsHotPants_MALE", label: "Hot Pants", type: "radio", redux: "00086E" },
+    { name: "sakr_kwd_pantsThong_MALE", label: "Thong", type: "radio", redux: "000870" },
+    { name: "sakr_kwd_pantsTagTight_MALE", label: "Tight", type: "checkbox", redux: "00086C" },
+    { name: "sakr_kwd_pantsTagSheer_MALE", label: "Sheer", type: "checkbox", redux: "00086F" },
+  ],
+  top: [
+    { name: "sakr_kwd_topFull_MALE", label: "Full", type: "radio", redux: "000871" },
+    { name: "sakr_kwd_topBreast_MALE", label: "Breast", type: "radio", redux: "000872" },
+    { name: "sakr_kwd_topSmallCoverage_MALE", label: "Small Coverage", type: "radio", redux: "000873" },
+    { name: "sakr_kwd_topTagTankTop_MALE", label: "Tank Top", type: "checkbox", redux: "000878" },
+    { name: "sakr_kwd_topTagCropTop_MALE", label: "Crop Top", type: "checkbox", redux: "000874" },
+    { name: "sakr_kwd_topTagHalterTop_MALE", label: "Halter Top", type: "checkbox", redux: "000875" },
+    { name: "sakr_kwd_topTagFrontTorso_MALE", label: "Front Torso", type: "checkbox", redux: "000877" },
+    { name: "sakr_kwd_topTagTight_MALE", label: "Tight", type: "checkbox", redux: "000879" },
+    { name: "sakr_kwd_topTagSheer_MALE", label: "Sheer", type: "checkbox", redux: "000876" },
+  ],
+  stockings: [
+    { name: "sakr_kwd_stockingsLong_MALE", label: "Long", type: "radio", redux: "00087A" },
+    { name: "sakr_kwd_stockingsTagShiny_MALE", label: "Shiny", type: "checkbox", redux: "00087C" },
+    { name: "sakr_kwd_stockingsTagSheer_MALE", label: "Sheer", type: "checkbox", redux: "00087D" },
+  ],
+  shoes: [
+    { name: "sakr_kwd_shoesHighHeels_MALE", label: "High Heels", type: "radio", redux: "00087B" },
+    { name: "sakr_kwd_shoesKillerHeels_MALE", label: "Killer Heels", type: "radio", redux: "00087E" },
+  ],
+});
+
+export const SETS = Object.freeze({ female: FEMALE, male: MALE });
+
+/**
+ * The keyword groups for one body.
+ *
+ * @param {String} sex  'female' or 'male'
+ */
+export function setFor(sex) {
+  return SETS[sex] ?? FEMALE;
+}
+
+/** Every keyword in both sets, flat, each carrying the group it belongs to. */
+export const ALL_KEYWORDS = Object.freeze(
+  Object.entries(SETS).flatMap(([sex, groups]) =>
+    Object.entries(groups).flatMap(([group, entries]) =>
+      entries.map((keyword) => Object.freeze({ ...keyword, group, sex })),
+    ),
+  ),
+);
+
+/** name -> the keyword, for going from an ini back to the form. */
+export const BY_NAME = Object.freeze(
+  ALL_KEYWORDS.reduce((map, keyword) => {
+    map[keyword.name] = keyword;
+    return map;
+  }, Object.create(null)),
+);
+
+export default FEMALE;

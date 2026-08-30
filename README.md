@@ -1,8 +1,8 @@
 # SAKR tagger
 
 Tag a Fallout 4 armour with Skimpy Armor Keyword Resource keywords in a form, and
-read back the RobCo Patcher line. Load an existing ini to edit it, or to convert
-it.
+read back the patch line — for **RobCo Patcher** or **Complex Item Sorter**. Load
+an existing file to edit it, or to convert it.
 
 **→ [langmans.github.io/sakr-tagger](https://langmans.github.io/sakr-tagger/)**
 
@@ -34,14 +34,41 @@ range exists in 1.1.2 and in no REDUX record, so one of them settles the
 question. Nothing proves REDUX, so a file without such an id is read as whatever
 is selected, and the page says that is what it did.
 
-## What it does not cover
+## The two formats
 
-The 40 keywords in the form are the female set, the only one both versions have.
-REDUX adds 30 `_MALE` variants — six garment types rather than eight, with their
-own names and ids — and `sakr_kwd_protectedItem`. None of them are here yet.
+**RobCo Patcher** names the armour and the keyword by FormID, so it is tied to
+one SAKR version — everything above applies to it.
 
-This only matters one way round: a 1.1.2 patch cannot name a REDUX-only keyword,
-so nothing is lost on import or conversion.
+**Complex Item Sorter** matches on EditorID and names keywords by name, so it has
+no version problem at all. Output is one file per plugin, which is how Complex
+Sorter reads them; save each as `SAKR_<plugin>.ini` under
+`Complex Sorter/Plugins/`.
+
+That difference is also why converting between the two is not automatic: a RobCo
+line carries a FormID and a Complex Sorter rule needs an EditorID, and only
+somebody with the plugin open in xEdit can supply it. Rows without one are listed
+in a comment rather than silently dropped.
+
+Loading a Complex Sorter file keeps conditions it cannot represent in the form —
+`EDID contains A|B`, several clauses, a `not` — verbatim, and writes them back
+unchanged. Checked against all 15 files SAKR REDUX ships: 157 rules, all
+round-tripping unchanged bar one, where the source sets two mutually exclusive
+Top keywords on the same record. That one is reported on screen rather than
+quietly resolved.
+
+## The male keywords
+
+REDUX adds 30 `_MALE` keywords and the form has them, per armour, behind the
+**Body** switch. They are not a suffix on the same records: seven groups rather
+than eight, no bra and no skirt, and the top steps Full → Breast → Small
+Coverage where the female set steps Full → Cleavage → Low Cut.
+
+1.1.2 has no male set at all, so a male armour cannot be written as a 1.1.2 RobCo
+line. The page says so rather than writing a short line. Complex Sorter is fine
+either way.
+
+`sakr_kwd_protectedItem` is not in the form: it marks an item for REDUX's own
+unequip handling rather than describing how much it covers.
 
 ## Publishing a new version
 
@@ -52,6 +79,20 @@ project page serves from `/sakr-tagger/` rather than from the domain root.
 ```bash
 npm run build && git worktree add -B gh-pages .pages && cp -r dist/. .pages/ && touch .pages/.nojekyll && git -C .pages add -A && git -C .pages commit -m "Build of main for GitHub Pages" && git -C .pages push -f origin gh-pages && git worktree remove --force .pages
 ```
+
+## The mods this is for
+
+None of these are mine. This only writes files that they read.
+
+- **Skimpy Armor Keyword Resource REDUX** by Evi1Panda —
+  [LoversLab](https://www.loverslab.com/topic/262924-skimpy-armor-keyword-resource-redux/),
+  source at [NoAbleEngles/SAKR](https://github.com/NoAbleEngles/SAKR). The
+  keyword ids and the Complex Sorter file layout here were read out of it.
+- **Skimpy Armor Keyword Resource 1.1.2**, the older LoversLab release, which is
+  the other half of the version problem.
+- **RobCo Patcher** — [Nexus](https://www.nexusmods.com/fallout4/mods/69798).
+- **Complex Item Sorter** by M8r98a4f2 —
+  [Nexus](https://www.nexusmods.com/fallout4/mods/48826).
 
 ## Related
 
