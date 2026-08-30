@@ -6,6 +6,7 @@ import tooltips from '../tooltips.js'
 import { formidFor } from '../keywords.js'
 
 const version = inject('sakrVersion', ref('redux'))
+const showIds = inject('sakrShowIds', ref(false))
 
 const modal = defineModel({
     type: Object,
@@ -28,7 +29,7 @@ const props = defineProps({
             :label="keyword.label" 
             :name="keyword.name"
              :title="tooltips[keyword.name]"
-            :hint="formidFor(keyword, version)"
+            :hint="showIds ? formidFor(keyword, version) : null"
             type="checkbox"
             :model-value="modal?.[keyword.name] ?? false"
             @update:model-value="(val) => modal = { ...modal, [keyword.name]: val }"

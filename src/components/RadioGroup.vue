@@ -8,6 +8,7 @@ import { formidFor } from '../keywords.js'
 const id = useId()
 
 const version = inject('sakrVersion', ref('redux'))
+const showIds = inject('sakrShowIds', ref(false))
 
 // Het model bevat simpelweg de geselecteerde formid (String) of null/undefined
 const model = defineModel({
@@ -32,6 +33,6 @@ const props = defineProps({
 
         <LabelInput v-for="keyword in props.keywords" :key="keyword.name" :label="keyword.label" :name="id" type="radio"
              :value="keyword.name" v-model="model" :title="tooltips[keyword.name]"
-             :hint="formidFor(keyword, version)" />
+             :hint="showIds ? formidFor(keyword, version) : null" />
     </div>
 </template>

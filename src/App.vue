@@ -18,6 +18,16 @@ const armors = ref([{}])
 const version = ref('redux')
 provide('sakrVersion', version)
 
+/* Whether every label carries its FormID. Off by default -- forty numbers under
+   forty labels is a lot of page for something most people never need to read,
+   since the generated line below already has the ids in it.
+ *
+   It earns its place when you are checking a patch rather than building one:
+   turn it on and the version switch visibly renumbers 35 of the 40, which is
+   otherwise a claim you have to take on trust. */
+const showIds = ref(false)
+provide('sakrShowIds', showIds)
+
 /* What the file said, when it said anything. A 0x26xx id proves 1.1.2; nothing
    proves REDUX, so an unproven file is read as whatever is selected and says
    so. */
@@ -83,11 +93,17 @@ const handleFileUpload = (event) => {
         <input type="radio" name="sakr-version" :value="key" v-model="version" />
         {{ label }}
       </label>
+
+      <label class="show-ids">
+        <input type="checkbox" v-model="showIds" />
+        Show FormIDs
+      </label>
+
       <p class="note">
         The two ship the same plugin filename and 35 of their 40 shared keywords
         have different ids, so a line written for one is applied as a different
         keyword by the other. Nothing reports it. Switching here renumbers
-        everything on the page — watch the ids under the labels.
+        everything on the page — tick <em>Show FormIDs</em> to watch it happen.
         <strong>Five keywords keep their number</strong> in both versions
         (bra normal, bikini and micro, pants sheer, top halter top), so those
         will not change. That is coincidence, not compatibility.
@@ -147,6 +163,14 @@ const handleFileUpload = (event) => {
 
 .version label {
   margin-right: 1em;
+}
+
+/* Set apart from the version radios beside it: those choose what the page
+   MEANS, this only chooses what it shows. */
+.show-ids {
+  border-left: 1px solid var(--line);
+  padding-left: 1em;
+  opacity: 0.85;
 }
 
 .note {
