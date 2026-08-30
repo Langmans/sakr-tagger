@@ -16,18 +16,34 @@ import { exportSingle, exportComplexSorter, keywordNamesOf } from '../export.js'
 const version = inject('sakrVersion', ref('redux'))
 const format = inject('sakrFormat', ref('robco'))
 
-/* Which body this armour is for, and so which keyword set it gets. Per armour
-   rather than per page, because an outfit is worn by one or the other and a
-   plugin may hold both.
+/* Which set is on screen -- NOT what the armour is.
  *
-   Not a suffix on the same records: the male set has no bra and no skirt, and
-   its top steps Full -> Breast -> SmallCoverage where the female one steps
-   Full -> Cleavage -> LowCutCleavage. Switching therefore changes which groups
-   exist, not just which ids they carry. */
-const sex = computed({
-    get: () => model.value?.sex ?? 'female',
-    set: (value) => { model.value = { ...model.value, sex: value } }
+   One ARMO record holds a male model and a female one and either sex can wear
+   it, and SAKR reads the keyword set matching whoever has it on: sakr.json is
+   two sets keyed `gender`. So an armour can carry both, and tagging only the
+   female side leaves a male wearer with nothing to read. The two are kept side
+   by side in the model and this only chooses which one you are editing.
+
+   They cannot share one object: the male set has its own groups -- no bra, no
+   skirt -- but `top` and `pants` exist in both, so the radio keys collide. */
+const editing = computed({
+    get: () => model.value?.editing ?? 'female',
+    set: (value) => { model.value = { ...model.value, editing: value } }
 })
+
+/* The half being edited, as its own v-model for the groups below. Writing goes
+   back into that half only, so the other survives untouched. */
+const selection = computed({
+    get: () => model.value?.keywords?.[editing.value] ?? {},
+    set: (value) => {
+        model.value = {
+            ...model.value,
+            keywords: { ...model.value?.keywords, [editing.value]: value }
+        }
+    }
+})
+
+const countIn = (sex) => Object.keys(model.value?.keywords?.[sex] ?? {}).length
 
 /* Same shape, and for the same reason: a fresh armour is {}, so binding the
    <select> straight to model.edidOp leaves it matching no option and rendering
@@ -41,7 +57,7 @@ const edidOp = computed({
 const keywordGroups = computed(() => {
     const groups = { top: [], bottom: [] }
 
-    Object.entries(setFor(sex.value)).forEach(([group, groupKeywords]) => {
+    Object.entries(setFor(editing.value)).forEach(([group, groupKeywords]) => {
         groups[['armorTop', 'top', 'bra'].includes(group)
             ? 'top'
             : 'bottom'
@@ -50,11 +66,13 @@ const keywordGroups = computed(() => {
     return groups
 })
 
-/* The male set is REDUX only -- 1.1.2 has no male keyword at all -- so a male
-   armour cannot be written as a 1.1.2 RobCo line. Complex Sorter is fine either
-   way, since it names keywords rather than numbering them. */
+/* The male set is REDUX only -- 1.1.2 has no male keyword at all -- so male
+   tagging cannot go in a 1.1.2 RobCo line. Complex Sorter is fine either way,
+   since it names keywords rather than numbering them. Raised on the tagging
+   being there rather than on the tab being open, because the line is short
+   whether or not you happen to be looking at that half. */
 const impossible = computed(() =>
-    sex.value === 'male' && version.value === 'legacy' && format.value === 'robco')
+    countIn('male') > 0 && version.value === 'legacy' && format.value === 'robco')
 
 watch(
     () => model.value?.keywords,
@@ -66,8 +84,15 @@ watch(
            does not have, and nothing reaches the model. Every later click works,
            which is what makes it look like a stray bug rather than a missing
            initial value. */
-        if (!model.value?.keywords) {
-            model.value = { ...model.value, keywords: {}, keywordNames: [] }
+        if (!model.value?.keywords?.female || !model.value?.keywords?.male) {
+            model.value = {
+                ...model.value,
+                keywords: {
+                    female: model.value?.keywords?.female ?? {},
+                    male: model.value?.keywords?.male ?? {}
+                },
+                keywordNames: []
+            }
             return
         }
 
@@ -105,7 +130,8 @@ const output = computed(() => format.value === 'complexSorter'
             <template v-if="model?.mod">
                 ({{ model.mod }}{{ model.formid ? `#${model.formid}` : '' }})
             </template>
-            <span v-if="sex === 'male'" class="tag">male</span>
+            <span v-if="countIn('female')" class="tag">♀ {{ countIn('female') }}</span>
+            <span v-if="countIn('male')" class="tag">♂ {{ countIn('male') }}</span>
         </summary>
 
         <slot name="top"></slot>
@@ -160,26 +186,33 @@ const output = computed(() => format.value === 'complexSorter'
             </p>
 
             <fieldset>
-                <legend>Body</legend>
+                <legend>Tagging for</legend>
                 <div class="inline-flex radio">
-                    <label v-for="(label, key) in SEXES" :key="key">
-                        <input type="radio" :name="`sex-${id}`" :value="key" v-model="sex" />
-                        {{ label }}
+                    <label v-for="(text, key) in SEXES" :key="key">
+                        <input type="radio" :name="`sex-${id}`" :value="key" v-model="editing" />
+                        {{ text }}<small class="hint">{{ countIn(key) }}</small>
                     </label>
                 </div>
+                <p class="note">
+                    Both are kept. One armour record is worn by either sex and
+                    SAKR reads the set matching the wearer, so tagging only one
+                    side leaves the other with nothing to read. This chooses
+                    which half you are editing, not what the armour is.
+                </p>
             </fieldset>
 
             <p v-if="impossible" class="warn">
-                The male keywords exist in REDUX only — SAKR 1.1.2 has no male set
-                at all — so this armour cannot be written as a 1.1.2 RobCo line.
-                Use REDUX, or the Complex Sorter format, which names keywords
-                instead of numbering them.
+                This armour has male tagging, and those keywords exist in REDUX
+                only — SAKR 1.1.2 has no male set at all. They are left out of the
+                1.1.2 line below. Use REDUX, or the Complex Sorter format, which
+                names keywords instead of numbering them.
             </p>
 
             <div v-for="topOrBottom in Object.keys(keywordGroups)" :key="topOrBottom">
                 <div class="inline-flex">
-                    <KeywordGroup v-for="group in keywordGroups[topOrBottom]" :key="group.group"
-                        v-model="model.keywords" :group="group.group" :keywords="group.keywords" />
+                    <KeywordGroup v-for="group in keywordGroups[topOrBottom]"
+                        :key="`${editing}-${group.group}`"
+                        v-model="selection" :group="group.group" :keywords="group.keywords" />
                 </div>
             </div>
             <textarea cols="80" rows="4" readonly onclick="this.focus();this.select()">{{ output }}</textarea>

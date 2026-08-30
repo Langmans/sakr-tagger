@@ -131,34 +131,43 @@ export function detectVersion(iniText) {
    losing a keyword without saying so is the exact failure this app exists to
    catch. */
 function selectionFrom(keywordList) {
-  const selected = {};
+  /* Split by body, because one ARMO record can carry both sets: either sex can
+     wear the same armour, and SAKR reads whichever set matches the wearer. The
+     group keys collide across the two -- both have a `top` and a `pants` -- so
+     they cannot share one object. */
+  const selected = { female: {}, male: {} };
   const conflicts = [];
 
   for (const keyword of keywordList) {
+    const side = selected[keyword.sex] ?? selected.female;
+
     if (keyword.type !== "radio") {
-      selected[keyword.name] = true;
+      side[keyword.name] = true;
       continue;
     }
-    if (selected[keyword.group]) {
+    if (side[keyword.group]) {
       conflicts.push({
         group: keyword.group,
-        kept: selected[keyword.group],
+        sex: keyword.sex,
+        kept: side[keyword.group],
         dropped: keyword.name,
       });
       continue;
     }
-    selected[keyword.group] = keyword.name;
+    side[keyword.group] = keyword.name;
   }
 
   return { selected, conflicts };
 }
 
-/* A row's body decides which set it belongs to, rather than a setting: a file
-   may hold both, and the keywords themselves already say. Male wins on a tie
-   only because a mixed row is broken either way and one of the two has to be
-   picked to show it at all. */
-function sexOf(keywordList) {
-  return keywordList.some((k) => k.sex === "male") ? "male" : "female";
+/* Which set the form should be showing when the row opens. Not what the armour
+   IS -- it can carry both -- only which of the two is worth looking at first.
+   Male when there is male tagging and no female tagging, because that is the row
+   whose content would otherwise be behind a switch nobody thought to throw. */
+function editingSex(selected) {
+  const female = Object.keys(selected.female ?? {}).length;
+  const male = Object.keys(selected.male ?? {}).length;
+  return male > 0 && female === 0 ? "male" : "female";
 }
 
 function parseRobco(text, assume) {
@@ -194,7 +203,7 @@ function parseRobco(text, assume) {
       editorId: "",
       edidOp: "equals",
       rawMatch: "",
-      sex: sexOf(found),
+      editing: editingSex(selected),
       keywords: selected,
       conflicts,
       unknown,
@@ -245,7 +254,7 @@ function parseComplexSorter(text) {
       /* Kept only when the condition is more than one EDID test, so the common
          case stays editable in the form and the awkward case survives intact. */
       rawMatch: simple ? "" : condition.trim(),
-      sex: sexOf(found),
+      editing: editingSex(selected),
       keywords: selected,
       conflicts,
       unknown,

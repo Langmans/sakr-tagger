@@ -58,13 +58,26 @@ quietly resolved.
 
 ## The male keywords
 
-REDUX adds 30 `_MALE` keywords and the form has them, per armour, behind the
-**Body** switch. They are not a suffix on the same records: seven groups rather
-than eight, no bra and no skirt, and the top steps Full → Breast → Small
-Coverage where the female set steps Full → Cleavage → Low Cut.
+REDUX adds 30 `_MALE` keywords and the form has them, behind the **Tagging for**
+switch on each armour.
 
-1.1.2 has no male set at all, so a male armour cannot be written as a 1.1.2 RobCo
-line. The page says so rather than writing a short line. Complex Sorter is fine
+**Both sets are kept, and that is the point.** One ARMO record carries a male
+model and a female one, either sex can wear it, and SAKR reads the set matching
+whoever has it on — `sakr.json` is two sets keyed `gender`. Tag only the female
+side and a male wearer reads nothing off that garment. So the switch chooses
+which half you are editing, not what the armour is, and the summary line shows
+both counts.
+
+They are not a suffix on the same records: seven groups rather than eight, no bra
+and no skirt, and the top steps Full → Breast → Small Coverage where the female
+set steps Full → Cleavage → Low Cut. Reusing the female chain would produce
+plausible wrong keywords rather than failing.
+
+1.1.2 has no male set at all, so male tagging cannot go in a 1.1.2 RobCo line. It
+is left out and both the page and the generated comment say so.
+
+For what it is worth, none of the 15 Complex Sorter files SAKR REDUX ships uses a
+male keyword — they tag the female set only. Complex Sorter is fine
 either way.
 
 `sakr_kwd_protectedItem` is not in the form: it marks an item for REDUX's own

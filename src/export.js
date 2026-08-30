@@ -57,7 +57,18 @@ export function keywordNamesOf(armor) {
     return armor.keywordNames;
   }
 
-  return Object.entries(armor?.keywords ?? {}).flatMap(([key, value]) => {
+  /* Both bodies, always. One ARMO record carries a male model and a female one
+     and either can wear it, and SAKR reads the keyword set matching whoever has
+     it on -- sakr.json holds two sets keyed `gender`. So the sets are additive
+     rather than exclusive: tagging only the female one leaves a male wearer with
+     nothing to read, silently. */
+  return SELECTABLE.flatMap((sex) => namesIn(armor?.keywords?.[sex]));
+}
+
+const SELECTABLE = ["female", "male"];
+
+function namesIn(selection) {
+  return Object.entries(selection ?? {}).flatMap(([key, value]) => {
     if (value === true) return key;
     if (typeof value === "string" && value.length > 0) return value;
     return [];
